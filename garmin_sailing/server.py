@@ -312,7 +312,13 @@ def get_sailing_activities(limit: int = 10) -> list[dict]:
     Returns sailing activities with: name, date, distance (nm),
     duration (minutes), avg speed (knots), heart rate, and calories.
     """
-    activities = garmin.get_activities(0, min(limit, 100), activitytype="sailing_v2")
+    # Garmin API doesn't support sailing_v2 as a filter, so we fetch more
+    # activities and filter client-side
+    all_activities = garmin.get_activities(0, 100)
+    sailing = [
+        a for a in all_activities
+        if a.get("activityType", {}).get("typeKey") == "sailing_v2"
+    ][:limit]
     return [
         {
             "activity_id": a.get("activityId"),
@@ -325,7 +331,7 @@ def get_sailing_activities(limit: int = 10) -> list[dict]:
             "max_heart_rate": a.get("maxHR"),
             "calories": a.get("calories"),
         }
-        for a in activities
+        for a in sailing
     ]
 
 

@@ -579,9 +579,10 @@ def sailing_map_view() -> str:
       const w = analysis.wind_conditions;
       if (w && w.wind_speed_knots != null) {
         document.getElementById('wind-panel').style.display = 'block';
-        const blowTo = (w.wind_direction_deg + 180) % 360;
+        // wind_direction_deg = where wind comes FROM; using it directly
+        // as CSS rotation on a down-arrow makes it point where wind blows TO
         document.getElementById('wind-arrow').style.transform =
-          `rotate(${blowTo}deg)`;
+          `rotate(${w.wind_direction_deg}deg)`;
         document.getElementById('wind-speed').textContent =
           w.wind_speed_knots.toFixed(1) + ' kn';
         document.getElementById('wind-gusts').textContent =

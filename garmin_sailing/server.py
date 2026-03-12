@@ -376,14 +376,21 @@ def get_sailing_map(activity_id: str) -> str:
         return json.dumps(analysis)
 
     dt = _get_activity_datetime(track_points)
-    track_for_map = [
-        {
+    track_for_map = []
+    for i, p in enumerate(track_points):
+        point = {
             "lat": p["lat"],
             "lon": p["lon"],
             "speed_knots": round((p.get("speed_ms") or 0) * MS_TO_KNOTS, 2),
         }
-        for p in track_points
-    ]
+        if i > 0:
+            point["heading"] = round(
+                _bearing(
+                    track_points[i - 1]["lat"], track_points[i - 1]["lon"],
+                    p["lat"], p["lon"],
+                ), 1
+            )
+        track_for_map.append(point)
 
     return json.dumps({
         "track": track_for_map,
@@ -544,6 +551,28 @@ def sailing_map_view() -> str:
         radius: 8, fillColor: '#e74c3c', fillOpacity: 1,
         color: '#fff', weight: 2,
       }).addTo(map).bindPopup('End');
+
+      // Direction arrows along the track
+      const step = Math.max(1, Math.floor(track.length / 15));
+      for (let i = step; i < track.length - step; i += step) {
+        const p = track[i];
+        if (p.heading == null) continue;
+        const color = speedColor(p.speed_knots, maxSpeed);
+        // CSS rotate: heading 0=North, arrow ▲ points up at 0deg
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="
+            font-size: 14px;
+            color: ${color};
+            transform: rotate(${p.heading}deg);
+            text-shadow: 0 0 3px rgba(0,0,0,0.6);
+            line-height: 1;
+          ">&#x25B2;</div>`,
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
+        });
+        L.marker([p.lat, p.lon], { icon, interactive: false }).addTo(map);
+      }
 
       const lats = track.map(p => p.lat);
       const lons = track.map(p => p.lon);

@@ -2,6 +2,8 @@
 
 An MCP server that turns your Garmin watch into a sailing analytics tool. Combines GPS data from Garmin Connect with historical weather from [Open-Meteo](https://open-meteo.com) to give you sailing-specific insights — all accessible through Claude.
 
+![Sailing Map Example](docs/images/sailing-map-example.png)
+
 ## What it does
 
 | Tool | Description |
@@ -39,7 +41,7 @@ graph TD
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/garmin-sailing-mcp.git
+git clone https://github.com/vinicius-saraiva/garmin-sailing-mcp.git
 cd garmin-sailing-mcp
 python -m venv .venv
 source .venv/bin/activate
